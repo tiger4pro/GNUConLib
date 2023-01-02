@@ -17,17 +17,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import argparse
 import sys
 from pydub import AudioSegment
 
-# Vérifie que le nombre de paramètres est correct
-if len(sys.argv) != 3:
-    print("Usage : GNUConLib fichier_entree.wav fichier_sortie.mp3")
-    sys.exit(1)
+# Définition des arguments de la ligne de commande
+parser = argparse.ArgumentParser(description="Convertir un fichier wav en mp3")
+parser.add_argument("fichier_entree", help="fichier wav à convertir")
+parser.add_argument("fichier_sortie", help="fichier mp3 résultant")
+parser.add_argument("--channels", type=int, default=2, help="nombre de canaux (1 pour mono, 2 pour stéréo)")
+parser.add_argument("--sample_rate", type=int, default=44100, help="fréquence d'échantillonnage en Hz")
+parser.add_argument("--bitrate", type=int, default=320, help="débit en kbps")
+
+# Parse les arguments de la ligne de commande
+args = parser.parse_args()
 
 # Récupère le nom des fichiers d'entrée et de sortie
-fichier_entree = sys.argv[1]
-fichier_sortie = sys.argv[2]
+fichier_entree = args.fichier_entree
+
+# Récupère le nom des fichiers d'entrée et de sortie
+fichier_entree = args.fichier_entree
+fichier_sortie = args.fichier_sortie
 
 # Vérifie que les fichiers ont l'extension attendue
 if not fichier_entree.endswith(".wav"):
@@ -40,9 +50,8 @@ if not fichier_sortie.endswith(".mp3"):
 
 # Charge le fichier wav et le convertis en mp3
 son = AudioSegment.from_wav(fichier_entree)
-son = son.set_channels(2)
-son = son.set_frame_rate(44100)
-son.export(fichier_sortie, format="mp3", bitrate="320k")
+son = son.set_channels(args.channels)
+son = son.set_frame_rate(args.sample_rate)
+son.export(fichier_sortie, format="mp3", bitrate=f"{args.bitrate}k")
 
 print("Conversion terminée !")
-
